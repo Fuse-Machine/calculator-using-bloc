@@ -5,23 +5,50 @@ part 'calculator_event.dart';
 part 'calculator_state.dart';
 
 class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
-  CalculatorBloc() : super(CalculatorInitial()) {
+  var firstNumber = TextEditingController();
+  var secondNumber = TextEditingController();
+  double result = 0;
+
+  CalculatorBloc() : super(const CalculatorInitial()) {
     on<CalculatorEvent>((event, emit) {
-      double result = 0;
-      if (event is AddButtonPressed) {
-        result = (event.firstNumber + event.secondNumber).toDouble();
-      } else if (event is SubButtonPressed) {
-        result = (event.firstNumber - event.secondNumber).toDouble();
-      } else if (event is MulButtonPressed) {
-        result = (event.firstNumber * event.secondNumber).toDouble();
-      } else if (event is DivButtonPressed) {
-        result = (event.firstNumber / event.secondNumber).toDouble();
-      } else if (event is ResetButtonPressed) {
-        event.firstNumber.clear();
-        event.secondNumber.clear();
-        result = 0;
+      if (_checkTexboxField() == true) {
+        int _first = int.parse(firstNumber.text);
+        int _second = int.parse(secondNumber.text);
+        if (event is Addition) {
+          result = (_first + _second).toDouble();
+        } else if (event is Substraction) {
+          result = (_first - _second).toDouble();
+        } else if (event is Multiplication) {
+          result = (_first * _second).toDouble();
+        } else if (event is Division) {
+          result = (_first / _second).toDouble();
+        } else if (event is Reset) {
+          _reset();
+        }
+        emit(AirthmeticResult(res: result));
+      } else {
+        emit(ErrorState(result: 0, errorMessage: 'Both Numbers are Required'));
       }
-      emit(AirthmeticState(result: result));
     });
+  }
+
+  bool _checkTexboxField() {
+    return (firstNumber.text.isNotEmpty && secondNumber.text.isNotEmpty)
+        ? true
+        : false;
+  }
+
+  _reset() {
+    firstNumber.clear();
+    secondNumber.clear();
+    result = 0;
+  }
+
+  TextEditingController get firstNumberController {
+    return firstNumber;
+  }
+
+  TextEditingController get secondNumberController {
+    return secondNumber;
   }
 }
